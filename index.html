@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Daftar Hadir — MUSDA 8 LDII</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    brand: { 50:'#EEF4FF', 100:'#D9E6FF', 200:'#BCCFFF', 500:'#3366CC', 600:'#1A4FA0', 700:'#0E3B7A' },
+                    ok:    { 50:'#ECFDF5', 100:'#D1FAE5', 500:'#10B981', 600:'#059669' },
+                    warn:  { 50:'#FFFBEB', 500:'#F59E0B' },
+                },
+                fontFamily: {
+                    display: ['Playfair Display','serif'],
+                    sans: ['DM Sans','sans-serif']
+                }
+            }
+        }
+    }
+    </script>
+
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}
+        body{font-family:'DM Sans',sans-serif;background:#F8FAFC;color:#1E293B;min-height:100dvh;overflow-x:hidden}
+
+        ::-webkit-scrollbar{width:4px}
+        ::-webkit-scrollbar-track{background:transparent}
+        ::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:2px}
+
+        #reader{border-radius:12px;overflow:hidden}
+        #reader video{border-radius:12px}
+
+        .scanner-wrap{position:relative;border-radius:16px;overflow:hidden;background:#000}
+        .vf-corner{position:absolute;width:24px;height:24px;border-color:#3366CC;border-style:solid;z-index:10;pointer-events:none}
+        .vf-tl{top:8%;left:8%;border-width:3px 0 0 3px;border-radius:4px 0 0 0}
+        .vf-tr{top:8%;right:8%;border-width:3px 3px 0 0;border-radius:0 4px 0 0}
+        .vf-bl{bottom:8%;left:8%;border-width:0 0 3px 3px;border-radius:0 0 0 4px}
+        .vf-br{bottom:8%;right:8%;border-width:0 3px 3px 0;border-radius:0 0 4px 0}
+        .scan-line{position:absolute;left:8%;right:8%;height:2px;background:linear-gradient(90deg,transparent,#3366CC,transparent);z-index:10;pointer-events:none;animation:scanL 2.4s ease-in-out infinite}
+        @keyframes scanL{0%{top:8%;opacity:0}8%{opacity:1}92%{opacity:1}100%{top:87%;opacity:0}}
+
+        .tab-btn{transition:all .25s;position:relative}
+        .tab-btn::after{content:'';position:absolute;bottom:0;left:50%;width:0;height:2.5px;background:#3366CC;border-radius:2px;transition:all .25s;transform:translateX(-50%)}
+        .tab-btn.active::after{width:50%}
+        .tab-btn.active{color:#3366CC;font-weight:600}
+
+        .card{background:#fff;border:1px solid #E2E8F0;border-radius:14px;transition:box-shadow .2s,border-color .2s}
+        .card:active{box-shadow:0 0 0 2px rgba(51,102,204,.15)}
+        .card-hadir{border-left:3px solid #10B981}
+
+        mark{background:#D9E6FF;color:#1A4FA0;padding:1px 2px;border-radius:2px}
+
+        .badge-hadir{animation:bPulse 2s ease-in-out infinite}
+        @keyframes bPulse{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.3)}50%{box-shadow:0 0 0 5px rgba(16,185,129,0)}}
+
+        .modal-bg{backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+        .modal-in{animation:mIn .28s ease}
+        @keyframes mIn{from{opacity:0;transform:scale(.94) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+        .toast-in{animation:tIn .35s ease}
+        .toast-out{animation:tOut .25s ease forwards}
+        @keyframes tIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes tOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-12px)}}
+
+        .check-pop{animation:cPop .45s cubic-bezier(.175,.885,.32,1.275)}
+        @keyframes cPop{0%{transform:scale(0);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+
+        .log-in{animation:lIn .3s ease}
+        @keyframes lIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+
+        .pulse-ring{animation:pR 2s ease infinite}
+        @keyframes pR{0%{box-shadow:0 0 0 0 rgba(51,102,204,.35)}70%{box-shadow:0 0 0 12px rgba(51,102,204,0)}100%{box-shadow:0 0 0 0 rgba(51,102,204,0)}}
+
+        input:focus{outline:none}
+
+        @media(max-width:380px){
+            .stat-num{font-size:1.1rem!important}
+        }
+    </style>
+</head>
+<body>
+
+<main class="max-w-lg mx-auto px-4 pt-5 pb-24">
+
+    <!-- Header -->
+    <header class="text-center mb-5">
+        <div class="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-brand-500 text-white mb-2.5 shadow-md shadow-brand-500/20">
+            <i class="fas fa-landmark text-lg"></i>
+        </div>
+        <h1 class="font-display text-[1.65rem] font-black tracking-tight text-slate-900 leading-tight">Daftar Hadir</h1>
+        <p class="text-brand-500 font-semibold text-base">MUSDA 8 LDII</p>
+    </header>
+
+    <!-- Statistik -->
+    <div class="grid grid-cols-4 gap-2 mb-3">
+        <div class="bg-white rounded-xl p-2.5 text-center border border-slate-100 shadow-sm">
+            <div id="stat-total" class="stat-num text-xl font-bold text-brand-500">-</div>
+            <div class="text-[9px] text-slate-400 uppercase tracking-wider mt-0.5">Terdaftar</div>
+        </div>
+        <div class="bg-white rounded-xl p-2.5 text-center border border-slate-100 shadow-sm">
+            <div id="stat-hadir" class="stat-num text-xl font-bold text-ok-500">-</div>
+            <div class="text-[9px] text-slate-400 uppercase tracking-wider mt-0.5">Hadir</div>
+        </div>
+        <div class="bg-white rounded-xl p-2.5 text-center border border-slate-100 shadow-sm">
+            <div id="stat-belum" class="stat-num text-xl font-bold text-rose-500">-</div>
+            <div class="text-[9px] text-slate-400 uppercase tracking-wider mt-0.5">Belum</div>
+        </div>
+        <div class="bg-white rounded-xl p-2.5 text-center border border-slate-100 shadow-sm">
+            <div id="stat-persen" class="stat-num text-xl font-bold text-slate-700">-</div>
+            <div class="text-[9px] text-slate-400 uppercase tracking-wider mt-0.5">Persen</div>
+        </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="w-full h-1.5 bg-slate-100 rounded-full mb-5 overflow-hidden">
+        <div id="progress-bar" class="h-full bg-gradient-to-r from-brand-500 to-ok-500 rounded-full transition-all duration-700" style="width:0%"></div>
+    </div>
+
+    <!-- Tab -->
+    <div class="flex bg-white rounded-xl p-1 mb-4 border border-slate-100 shadow-sm">
+        <button onclick="switchTab('scan')" id="tab-scan" class="tab-btn active flex-1 py-2.5 rounded-lg text-sm flex items-center justify-center gap-1.5">
+            <i class="fas fa-qrcode text-xs"></i> Scan
+        </button>
+        <button onclick="switchTab('search')" id="tab-search" class="tab-btn flex-1 py-2.5 rounded-lg text-sm text-slate-400 flex items-center justify-center gap-1.5">
+            <i class="fas fa-search text-xs"></i> Cari
+        </button>
+    </div>
+
+    <!-- ===== SCAN SECTION ===== -->
+    <section id="section-scan" class="mb-5">
+        <div id="scanner-start" class="text-center py-8 bg-white rounded-2xl border-2 border-dashed border-slate-200">
+            <button onclick="startScanner()" class="pulse-ring bg-brand-500 hover:bg-brand-600 text-white font-semibold px-7 py-3.5 rounded-xl text-sm transition-all active:scale-95 inline-flex items-center gap-2.5 shadow-md shadow-brand-500/20">
+                <i class="fas fa-camera"></i> Mulai Scan
+            </button>
+            <p class="text-slate-400 text-xs mt-2.5">Izinkan kamera untuk memindai barcode / QR code</p>
+        </div>
+
+        <div id="scanner-view" class="hidden">
+            <div class="scanner-wrap border border-slate-200">
+                <div class="vf-corner vf-tl"></div>
+                <div class="vf-corner vf-tr"></div>
+                <div class="vf-corner vf-bl"></div>
+                <div class="vf-corner vf-br"></div>
+                <div class="scan-line"></div>
+                <div id="reader" style="width:100%"></div>
+            </div>
+            <button onclick="stopAndReset()" class="w-full mt-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium py-2.5 rounded-xl text-sm transition-all active:scale-[.98]">
+                <i class="fas fa-stop mr-1.5"></i>Stop Scanner
+            </button>
+        </div>
+
+        <div class="mt-3 flex gap-2">
+            <input type="text" id="scan-manual" placeholder="Ketik nama / No HP..."
+                   class="flex-1 bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all"
+                   onkeydown="if(event.key==='Enter')handleManualScan()">
+            <button onclick="handleManualScan()" class="bg-brand-500 hover:bg-brand-600 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-all active:scale-95 shrink-0">
+                Cari
+            </button>
+        </div>
+    </section>
+
+    <!-- ===== SEARCH SECTION ===== -->
+    <section id="section-search" class="mb-5 hidden">
+        <div class="relative mb-3">
+            <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+            <input type="text" id="search-input" placeholder="Cari nama, jabatan, wilayah, No HP..."
+                   class="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all"
+                   oninput="handleSearch(this.value)">
+            <span id="search-count" class="hidden absolute right-3.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded"></span>
+        </div>
+        <div id="search-results" class="space-y-1.5 max-h-[55vh] overflow-y-auto"></div>
+    </section>
+
+    <!-- ===== RIWAYAT ===== -->
+    <section class="mb-5">
+        <div class="flex items-center justify-between mb-2.5">
+            <h2 class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                <i class="fas fa-clock-rotate-left mr-1"></i>Kehadiran Terbaru
+            </h2>
+            <button onclick="refreshData()" id="btn-refresh" class="text-[11px] text-brand-500 hover:text-brand-600 font-medium flex items-center gap-1">
+                <i class="fas fa-sync-alt text-[9px]"></i> Refresh
+            </button>
+        </div>
+        <div id="recent-log" class="space-y-1.5"></div>
+        <div id="log-empty" class="text-center py-7 text-slate-400 text-sm">
+            <i class="fas fa-inbox text-xl mb-1.5 block opacity-50"></i>
+            Belum ada yang hadir
+        </div>
+    </section>
+
+</main>
+
+<!-- ===== MODAL ===== -->
+<div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="modal-bg absolute inset-0 bg-black/40" onclick="hideModal()"></div>
+    <div class="modal-in relative bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl">
+        <button onclick="hideModal()" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-slate-700 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-colors">
+            <i class="fas fa-times text-sm"></i>
+        </button>
+
+        <div id="modal-check" class="hidden text-center mb-3">
+            <div class="check-pop inline-flex items-center justify-center w-14 h-14 rounded-full bg-ok-50 border-2 border-ok-500">
+                <i class="fas fa-check text-ok-500 text-xl"></i>
+            </div>
+        </div>
+
+        <div id="modal-info" class="text-center mb-4">
+            <div id="modal-avatar" class="w-16 h-16 rounded-full mx-auto mb-2.5 flex items-center justify-center text-xl font-bold text-white bg-brand-500 overflow-hidden border-2 border-brand-200"></div>
+            <h3 id="modal-nama" class="font-display text-lg font-bold text-slate-900"></h3>
+            <p id="modal-jabatan" class="text-brand-500 text-sm mt-0.5"></p>
+        </div>
+
+        <div class="bg-slate-50 rounded-xl p-3.5 space-y-2 text-sm mb-4">
+            <div class="flex justify-between">
+                <span class="text-slate-400">No HP</span>
+                <span id="modal-hp" class="text-slate-700 font-medium"></span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-slate-400">Wilayah</span>
+                <span id="modal-wilayah" class="text-slate-700 font-medium"></span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-slate-400">Jenis Kelamin</span>
+                <span id="modal-jk" class="text-slate-700 font-medium"></span>
+            </div>
+        </div>
+
+        <div id="modal-status" class="hidden text-center mb-3">
+            <span class="badge-hadir inline-flex items-center gap-1.5 bg-ok-50 text-ok-600 text-sm font-semibold px-3.5 py-1.5 rounded-full">
+                <i class="fas fa-check-circle"></i> Sudah Hadir
+            </span>
+            <p id="modal-waktu" class="text-[11px] text-slate-400 mt-1.5"></p>
+        </div>
+
+        <button id="modal-btn" onclick="confirmHadir()" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-xl text-sm transition-all active:scale-[.97] flex items-center justify-center gap-2 shadow-md shadow-brand-500/15">
+            <i class="fas fa-user-check"></i> Tandai Hadir
+        </button>
+    </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div id="toast-box" class="fixed top-4 left-4 right-4 z-[60] flex flex-col items-center gap-2 pointer-events-none"></div>
+
+
+<script>
+// ===========================================
+// KONFIGURASI
+// ===========================================
+const API_URL = 'https://script.google.com/macros/s/AKfycbx3ANDMuNpfllbECDKJf2onKYzqIIewGD153-cpJLXYbir-rmKpnZNZw-f78vyCjPM0dA/exec';
+
+// ===========================================
+// STATE
+// ===========================================
+let allPeserta = [];
+let hadirMap = {};
+let hadirList = [];
+let html5Qr = null;
+let scanning = false;
+let activeTab = 'scan';
+let searchTimer = null;
+let selectedPerson = null;
+let processing = false;
+
+// ===========================================
+// INIT
+// ===========================================
+document.addEventListener('DOMContentLoaded', () => {
+    if (API_URL === 'MASUKKAN_URL_WEB_APP_ANDA_DISINI') {
+        document.querySelector('main').innerHTML = `
+            <div class="text-center py-16">
+                <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-brand-50 text-brand-500 mb-4">
+                    <i class="fas fa-cog text-2xl"></i>
+                </div>
+                <h2 class="font-display text-xl font-bold text-slate-900 mb-2">Konfigurasi Diperlukan</h2>
+                <p class="text-slate-500 text-sm max-w-xs mx-auto">Buka file HTML dan ganti <code class="bg-slate-100 px-1.5 py-0.5 rounded text-brand-500 text-xs">MASUKKAN_URL_WEB_APP_ANDA_DISINI</code> dengan URL Web App Anda.</p>
+            </div>`;
+        return;
+    }
+    html5Qr = new Html5Qrcode('reader');
+    loadData();
+});
+
+// ===========================================
+// MUAT DATA
+// ===========================================
+async function loadData() {
+    try {
+        const [pRes, hRes] = await Promise.all([
+            fetch(`${API_URL}?action=data`).then(r => r.json()),
+            fetch(`${API_URL}?action=hadir`).then(r => r.json()).catch(() => ({data:[]}))
+        ]);
+
+        allPeserta = pRes.data || [];
+        const hData = hRes.data || [];
+
+        hadirMap = {};
+        hadirList = [];
+        hData.forEach(h => {
+            const k = String(h['No HP'] || '').trim();
+            if (k) hadirMap[k] = h;
+            hadirList.push(h);
+        });
+        hadirList.sort((a, b) => new Date(b.Timestamp||0) - new Date(a.Timestamp||0));
+
+        updateStats();
+        renderLog();
+    } catch (e) {
+        console.error(e);
+        toast('Gagal memuat data. Periksa koneksi & URL API.', 'error');
+    }
+}
+
+async function refreshData() {
+    const b = document.getElementById('btn-refresh');
+    b.innerHTML = '<i class="fas fa-sync-alt fa-spin text-[9px]"></i> Memuat...';
+    b.disabled = true;
+    await loadData();
+    b.innerHTML = '<i class="fas fa-sync-alt text-[9px]"></i> Refresh';
+    b.disabled = false;
+    toast('Data diperbarui', 'success');
+}
+
+// ===========================================
+// SCANNER
+// ===========================================
+async function startScanner() {
+    if (scanning) return;
+    try {
+        document.getElementById('scanner-start').classList.add('hidden');
+        document.getElementById('scanner-view').classList.remove('hidden');
+        await html5Qr.start(
+            { facingMode: 'environment' },
+            { fps: 10, qrbox: { width: 220, height: 220 }, aspectRatio: 1.0 },
+            onScan, () => {}
+        );
+        scanning = true;
+    } catch (e) {
+        console.error(e);
+        document.getElementById('scanner-start').classList.remove('hidden');
+        document.getElementById('scanner-view').classList.add('hidden');
+        toast('Kamera tidak tersedia. Gunakan input manual.', 'error');
+    }
+}
+
+async function stopScan() {
+    if (!scanning) return;
+    try { await html5Qr.stop(); } catch(e) {}
+    scanning = false;
+}
+
+async function stopAndReset() {
+    await stopScan();
+    document.getElementById('scanner-start').classList.remove('hidden');
+    document.getElementById('scanner-view').classList.add('hidden');
+}
+
+function onScan(txt) {
+    if (navigator.vibrate) navigator.vibrate(60);
+    const m = findPerson(txt.trim());
+    if (m) { stopAndReset(); showModal(m); }
+    else toast(`Peserta tidak ditemukan: "${txt.trim()}"`, 'warning');
+}
+
+function handleManualScan() {
+    const inp = document.getElementById('scan-manual');
+    const q = inp.value.trim();
+    if (!q) return;
+    const m = findPerson(q);
+    if (m) { showModal(m); inp.value = ''; }
+    else toast(`Peserta tidak ditemukan: "${q}"`, 'warning');
+}
+
+// ===========================================
+// PENCARIAN
+// ===========================================
+function handleSearch(q) {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => renderResults(q.trim()), 160);
+}
+
+function renderResults(q) {
+    const box = document.getElementById('search-results');
+    const cnt = document.getElementById('search-count');
+
+    if (!q) {
+        cnt.classList.add('hidden');
+        const show = allPeserta.slice(0, 40);
+        box.innerHTML = show.map(p => cardHTML(p, '')).join('');
+        if (allPeserta.length > 40)
+            box.innerHTML += `<div class="text-center text-slate-400 text-xs py-3">Ketik untuk filter dari ${allPeserta.length} peserta</div>`;
+        return;
+    }
+
+    const res = searchAll(q);
+    cnt.classList.remove('hidden');
+    cnt.textContent = res.length + ' hasil';
+
+    if (!res.length) {
+        box.innerHTML = `<div class="text-center py-8 text-slate-400 text-sm"><i class="fas fa-user-slash text-lg mb-1.5 block opacity-50"></i>Tidak ditemukan untuk "${esc(q)}"</div>`;
+        return;
+    }
+    box.innerHTML = res.map(p => cardHTML(p, q)).join('');
+}
+
+function cardHTML(p, q) {
+    const hp = String(p['No HP']||'').trim();
+    const hadir = hadirMap[hp] !== undefined;
+    const nama = p['Nama']||'-';
+    const jabatan = p['Jabatan / Unsur']||'-';
+    const wil = p['Wilayah']||'-';
+    const ini = initials(nama);
+    const foto = p['Link Foto'] ? driveImg(p['Link Foto']) : null;
+
+    const hN = q ? hl(nama,q) : esc(nama);
+    const hJ = q ? hl(jabatan,q) : esc(jabatan);
+    const hW = q ? hl(wil,q) : esc(wil);
+    const hH = q ? hl(hp,q) : esc(hp);
+
+    return `
+    <div class="card px-3.5 py-3 cursor-pointer ${hadir?'card-hadir':''}" data-hp="${esc(hp)}" onclick="pickByHp(this.dataset.hp)">
+        <div class="flex items-center gap-3">
+            <div class="shrink-0">
+                ${foto
+                    ? `<img src="${foto}" class="w-10 h-10 rounded-full object-cover border-2 ${hadir?'border-ok-500':'border-slate-200'}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="w-10 h-10 rounded-full ${hadir?'bg-ok-500':'bg-brand-500'} flex items-center justify-center text-white font-bold text-xs" style="display:none">${ini}</div>`
+                    : `<div class="w-10 h-10 rounded-full ${hadir?'bg-ok-500':'bg-brand-500'} flex items-center justify-center text-white font-bold text-xs">${ini}</div>`
+                }
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5">
+                    <span class="font-semibold text-slate-800 text-sm truncate">${hN}</span>
+                    ${hadir ? '<span class="shrink-0 badge-hadir text-[9px] bg-ok-50 text-ok-600 px-1.5 py-0.5 rounded-full font-medium"><i class="fas fa-check mr-0.5"></i>Hadir</span>' : ''}
+                </div>
+                <div class="text-xs text-slate-500 truncate">${hJ}</div>
+                <div class="text-[11px] text-slate-400 truncate">${hW} &middot; ${hH}</div>
+            </div>
+            <i class="fas fa-chevron-right text-slate-300 text-[10px] shrink-0"></i>
+        </div>
+    </div>`;
+}
+
+function pickByHp(hp) {
+    const p = allPeserta.find(x => String(x['No HP']||'').trim() === hp);
+    if (p) showModal(p);
+}
+
+// ===========================================
+// LOGIKA PENCARIAN
+// ===========================================
+function findPerson(q) {
+    const ql = q.toLowerCase();
+    let m = allPeserta.find(p => String(p['No HP']||'').trim() === q.trim());
+    if (m) return m;
+    m = allPeserta.find(p => String(p._no||'') === q.trim());
+    if (m) return m;
+
+    const fields = ['Nama','No HP','Jabatan / Unsur','Wilayah','_no'];
+    const res = allPeserta.filter(p => fields.some(f => String(p[f]||'').toLowerCase().includes(ql)));
+    if (!res.length) return null;
+    if (res.length === 1) return res[0];
+
+    const starts = res.find(p => ['Nama','No HP','Jabatan / Unsur'].some(f => String(p[f]||'').toLowerCase().startsWith(ql)));
+    return starts || res[0];
+}
+
+function searchAll(q) {
+    const ql = q.toLowerCase();
+    const fields = ['Nama','No HP','Jabatan / Unsur','Wilayah','_no'];
+    return allPeserta.filter(p => fields.some(f => String(p[f]||'').toLowerCase().includes(ql)))
+        .sort((a,b) => {
+            const aH = hadirMap[String(a['No HP']||'').trim()] ? 1 : 0;
+            const bH = hadirMap[String(b['No HP']||'').trim()] ? 1 : 0;
+            if (aH !== bH) return aH - bH;
+            const aS = fields.some(f => String(a[f]||'').toLowerCase().startsWith(ql)) ? 0 : 1;
+            const bS = fields.some(f => String(b[f]||'').toLowerCase().startsWith(ql)) ? 0 : 1;
+            return aS - bS;
+        });
+}
+
+// ===========================================
+// MODAL
+// ===========================================
+function showModal(person) {
+    selectedPerson = person;
+    const hp = String(person['No HP']||'').trim();
+    const hadir = hadirMap[hp] !== undefined;
+    const nama = person['Nama']||'-';
+    const jabatan = person['Jabatan / Unsur']||'-';
+    const wil = person['Wilayah']||'-';
+    const jk = person['Jenis Kelamin']||'-';
+    const ini = initials(nama);
+    const foto = person['Link Foto'] ? driveImg(person['Link Foto']) : null;
+
+    document.getElementById('modal-check').classList.add('hidden');
+    document.getElementById('modal-info').classList.remove('hidden');
+
+    const av = document.getElementById('modal-avatar');
+    if (foto) {
+        av.innerHTML = `<img src="${foto}" class="w-full h-full object-cover" onerror="this.remove()">`;
+        av.className = `w-16 h-16 rounded-full mx-auto mb-2.5 overflow-hidden border-2 ${hadir?'border-ok-500':'border-brand-200'} flex items-center justify-center text-xl font-bold text-white bg-brand-500`;
+    } else {
+        av.innerHTML = ini;
+        av.className = `w-16 h-16 rounded-full mx-auto mb-2.5 flex items-center justify-center text-xl font-bold text-white ${hadir?'bg-ok-500 border-2 border-ok-500':'bg-brand-500 border-2 border-brand-200'}`;
+    }
+
+    document.getElementById('modal-nama').textContent = nama;
+    document.getElementById('modal-jabatan').textContent = jabatan;
+    document.getElementById('modal-hp').textContent = hp || '-';
+    document.getElementById('modal-wilayah').textContent = wil || '-';
+    document.getElementById('modal-jk').textContent = jk || '-';
+
+    const stEl = document.getElementById('modal-status');
+    const btnEl = document.getElementById('modal-btn');
+    if (hadir) {
+        stEl.classList.remove('hidden');
+        btnEl.classList.add('hidden');
+        const hD = hadirMap[hp];
+        document.getElementById('modal-waktu').textContent = hD && hD.Timestamp ? 'Hadir sejak: ' + hD.Timestamp : '';
+    } else {
+        stEl.classList.add('hidden');
+        btnEl.classList.remove('hidden');
+        btnEl.disabled = false;
+        btnEl.innerHTML = '<i class="fas fa-user-check"></i> Tandai Hadir';
+    }
+
+    const modal = document.getElementById('modal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function hideModal() {
+    const modal = document.getElementById('modal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    selectedPerson = null;
+    if (activeTab === 'scan' && !scanning) startScanner();
+}
+
+// ===========================================
+// CHECK-IN
+// ===========================================
+async function confirmHadir() {
+    if (!selectedPerson || processing) return;
+    processing = true;
+
+    const btn = document.getElementById('modal-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+
+    try {
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+                action: 'hadir',
+                nama: selectedPerson['Nama']||'-',
+                noHP: String(selectedPerson['No HP']||'').trim(),
+                jabatan: selectedPerson['Jabatan / Unsur']||'-',
+                wilayah: selectedPerson['Wilayah']||'-',
+                jenisKelamin: selectedPerson['Jenis Kelamin']||'-'
+            })
+        });
+        const r = await res.json();
+
+        if (r.status === 'success' || r.status === 'duplicate') {
+            const hp = String(selectedPerson['No HP']||'').trim();
+            const ts = new Date().toLocaleString('id-ID',{timeZone:'Asia/Jakarta'});
+            hadirMap[hp] = { Timestamp:ts, Nama:selectedPerson['Nama']||'-', 'No HP':hp, 'Jabatan / Unsur':selectedPerson['Jabatan / Unsur']||'-', Wilayah:selectedPerson['Wilayah']||'-' };
+            hadirList.unshift(hadirMap[hp]);
+
+            playSound();
+
+            document.getElementById('modal-check').classList.remove('hidden');
+            document.getElementById('modal-info').classList.add('hidden');
+            document.getElementById('modal-status').classList.add('hidden');
+            btn.classList.add('hidden');
+
+            toast(r.status === 'duplicate'
+                ? `${selectedPerson['Nama']} sudah tercatat hadir sebelumnya`
+                : `${selectedPerson['Nama']} berhasil dicatat hadir!`,
+                r.status === 'duplicate' ? 'warning' : 'success'
+            );
+
+            updateStats();
+            renderLog();
+            setTimeout(hideModal, 1400);
+        } else {
+            toast(r.message || 'Gagal mencatat kehadiran', 'error');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-user-check"></i> Tandai Hadir';
+        }
+    } catch (e) {
+        console.error(e);
+        toast('Gagal terhubung ke server', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-user-check"></i> Tandai Hadir';
+    }
+    processing = false;
+}
+
+// ===========================================
+// STATISTIK
+// ===========================================
+function updateStats() {
+    const total = allPeserta.length;
+    const hadir = Object.keys(hadirMap).length;
+    const belum = Math.max(0, total - hadir);
+    const pct = total > 0 ? Math.round((hadir/total)*100) : 0;
+    animN('stat-total', total);
+    animN('stat-hadir', hadir);
+    animN('stat-belum', belum);
+    document.getElementById('stat-persen').textContent = pct+'%';
+    document.getElementById('progress-bar').style.width = pct+'%';
+}
+
+function animN(id, target) {
+    const el = document.getElementById(id);
+    const from = parseInt(el.textContent)||0;
+    if (from === target) { el.textContent = target; return; }
+    const dur = 350, st = performance.now();
+    (function step(now) {
+        const p = Math.min((now-st)/dur, 1);
+        el.textContent = Math.round(from + (target-from)*(1-Math.pow(1-p,3)));
+        if (p < 1) requestAnimationFrame(step);
+    })(st);
+}
+
+// ===========================================
+// RIWAYAT
+// ===========================================
+function renderLog() {
+    const box = document.getElementById('recent-log');
+    const empty = document.getElementById('log-empty');
+    if (!hadirList.length) { box.innerHTML = ''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+
+    box.innerHTML = hadirList.slice(0,15).map((h,i) => {
+        const nama = h['Nama']||'-';
+        const jabatan = h['Jabatan / Unsur']||'-';
+        const waktu = h.Timestamp||'-';
+        return `
+        <div class="log-in flex items-center gap-2.5 bg-white rounded-xl px-3 py-2.5 border border-slate-100 ${i===0?'ring-1 ring-ok-500/20':''}">
+            <div class="w-7 h-7 rounded-full bg-ok-500 flex items-center justify-center text-[10px] font-bold text-white shrink-0">${initials(nama)}</div>
+            <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-slate-800 truncate">${esc(nama)}</div>
+                <div class="text-[11px] text-slate-400 truncate">${esc(jabatan)}</div>
+            </div>
+            <div class="text-[10px] text-slate-400 shrink-0 text-right leading-snug">
+                <i class="fas fa-check-circle text-ok-500 mr-0.5"></i>${esc(waktu)}
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ===========================================
+// TAB
+// ===========================================
+function switchTab(tab) {
+    activeTab = tab;
+    document.getElementById('tab-scan').classList.toggle('active', tab==='scan');
+    document.getElementById('tab-search').classList.toggle('active', tab==='search');
+    document.getElementById('tab-scan').classList.toggle('text-slate-400', tab!=='scan');
+    document.getElementById('tab-search').classList.toggle('text-slate-400', tab!=='search');
+    document.getElementById('section-scan').classList.toggle('hidden', tab!=='scan');
+    document.getElementById('section-search').classList.toggle('hidden', tab!=='search');
+
+    if (tab === 'search') {
+        stopAndReset();
+        renderResults(document.getElementById('search-input').value.trim());
+        document.getElementById('search-input').focus();
+    }
+}
+
+// ===========================================
+// TOAST
+// ===========================================
+function toast(msg, type='info') {
+    const box = document.getElementById('toast-box');
+    const c = { success:'bg-ok-50 border-ok-500 text-ok-600', error:'bg-red-50 border-red-400 text-red-600', warning:'bg-warn-50 border-warn-500 text-amber-700', info:'bg-brand-50 border-brand-500 text-brand-600' };
+    const ic = { success:'fa-check-circle', error:'fa-exclamation-circle', warning:'fa-exclamation-triangle', info:'fa-info-circle' };
+    const el = document.createElement('div');
+    el.className = `toast-in pointer-events-auto ${c[type]} border rounded-xl px-4 py-2.5 text-sm font-medium flex items-center gap-2 shadow-lg max-w-sm w-full`;
+    el.innerHTML = `<i class="fas ${ic[type]} shrink-0"></i><span>${esc(msg)}</span>`;
+    box.appendChild(el);
+    setTimeout(() => { el.classList.replace('toast-in','toast-out'); setTimeout(() => el.remove(), 250); }, 3200);
+}
+
+// ===========================================
+// SUARA
+// ===========================================
+function playSound() {
+    try {
+        const ctx = new (window.AudioContext||window.webkitAudioContext)();
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type = 'sine';
+        o.frequency.setValueAtTime(880, ctx.currentTime);
+        o.frequency.setValueAtTime(1175, ctx.currentTime + 0.1);
+        g.gain.setValueAtTime(0.18, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+        o.start(ctx.currentTime);
+        o.stop(ctx.currentTime + 0.3);
+    } catch(e) {}
+}
+
+// ===========================================
+// UTILITAS
+// ===========================================
+function driveImg(url) {
+    if (!url || url === '-' || url.startsWith('Gagal')) return null;
+    try {
+        let m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+        if (m) return 'https://lh3.googleusercontent.com/d/' + m[1];
+        m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+        if (m) return 'https://lh3.googleusercontent.com/d/' + m[1];
+        m = url.match(/open\?id=([a-zA-Z0-9_-]+)/);
+        if (m) return 'https://lh3.googleusercontent.com/d/' + m[1];
+    } catch(e) {}
+    return null;
+}
+
+function initials(name) {
+    if (!name || name === '-') return '?';
+    const p = name.trim().split(/\s+/);
+    return p.length >= 2 ? (p[0][0]+p[1][0]).toUpperCase() : p[0].substring(0,2).toUpperCase();
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function hl(text, q) {
+    if (!q) return esc(text);
+    const e = esc(text);
+    const re = new RegExp(`(${escRe(q)})`, 'gi');
+    return e.replace(re, '<mark>$1</mark>');
+}
+
+function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+</script>
+</body>
+</html>
