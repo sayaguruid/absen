@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Daftar Hadir — MUSDA 8 LDII</title>
+    <title>Daftar Hadir — MUSDA VIII LDII</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
@@ -40,53 +40,44 @@
         ::-webkit-scrollbar-track{background:transparent}
         ::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:2px}
 
-        /* Scanner input pulse */
+        /* Scan field states */
         .scan-field{transition:all .25s}
-        .scan-field:focus-within{box-shadow:0 0 0 3px rgba(51,102,204,.2),0 4px 20px rgba(51,102,204,.1)}
-        .scan-field.processing{box-shadow:0 0 0 3px rgba(245,158,11,.25)}
+        .scan-field:focus-within{box-shadow:0 0 0 3px rgba(51,102,204,.18),0 4px 20px rgba(51,102,204,.08)}
+        .scan-field.s-processing{box-shadow:0 0 0 3px rgba(245,158,11,.25);border-color:#FBBF24}
+        .scan-field.s-success{box-shadow:0 0 0 3px rgba(16,185,129,.2);border-color:#10B981}
+        .scan-field.s-error{box-shadow:0 0 0 3px rgba(239,68,68,.2);border-color:#EF4444}
+        .scan-field.s-warning{box-shadow:0 0 0 3px rgba(245,158,11,.2);border-color:#F59E0B}
 
-        /* Card peserta */
         .card{background:#fff;border:1px solid #E2E8F0;border-radius:12px;transition:all .2s}
-        .card:active{box-shadow:0 0 0 2px rgba(51,102,204,.12)}
-
-        /* ID chip */
         .id-chip{font-family:'DM Sans',monospace;font-weight:700;letter-spacing:.05em}
 
-        /* Result panel animasi */
         .result-panel{transition:all .35s cubic-bezier(.4,0,.2,1);max-height:0;opacity:0;overflow:hidden}
         .result-panel.show{max-height:500px;opacity:1}
 
-        /* Sukses flash */
         .flash-ok{animation:flashOk .6s ease}
         @keyframes flashOk{0%{background:#D1FAE5}100%{background:transparent}}
         .flash-err{animation:flashErr .6s ease}
         @keyframes flashErr{0%{background:#FEE2E2}100%{background:transparent}}
 
-        /* Toast */
         .toast-in{animation:tIn .35s ease}
         .toast-out{animation:tOut .25s ease forwards}
         @keyframes tIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
         @keyframes tOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-12px)}}
 
-        /* Log entry */
         .log-in{animation:lIn .3s ease}
         @keyframes lIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 
-        /* Tab */
         .tab-btn{transition:all .25s;position:relative}
         .tab-btn::after{content:'';position:absolute;bottom:0;left:50%;width:0;height:2.5px;background:#3366CC;border-radius:2px;transition:all .25s;transform:translateX(-50%)}
         .tab-btn.active::after{width:50%}
         .tab-btn.active{color:#3366CC;font-weight:600}
 
-        /* Pulse ring */
         .pulse-ring{animation:pR 2s ease infinite}
         @keyframes pR{0%{box-shadow:0 0 0 0 rgba(51,102,204,.3)}70%{box-shadow:0 0 0 10px rgba(51,102,204,0)}100%{box-shadow:0 0 0 0 rgba(51,102,204,0)}}
 
-        /* Badge hadir pulse */
         .badge-pulse{animation:bP 2s ease-in-out infinite}
         @keyframes bP{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.3)}50%{box-shadow:0 0 0 5px rgba(16,185,129,0)}}
 
-        /* Camera scanner */
         .scanner-wrap{position:relative;border-radius:14px;overflow:hidden;background:#000}
         #reader{border-radius:14px;overflow:hidden}
         #reader video{border-radius:14px}
@@ -101,11 +92,14 @@
         mark{background:#D9E6FF;color:#1A4FA0;padding:1px 2px;border-radius:2px}
         input:focus{outline:none}
 
-        /* Toggle switch */
-        .toggle-track{width:36px;height:20px;border-radius:10px;background:#CBD5E1;transition:background .2s;cursor:pointer;position:relative}
+        .toggle-track{width:36px;height:20px;border-radius:10px;background:#CBD5E1;transition:background .2s;cursor:pointer;position:relative;flex-shrink:0}
         .toggle-track.on{background:#3366CC}
         .toggle-thumb{width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.15)}
         .toggle-track.on .toggle-thumb{left:18px}
+
+        /* Blinking cursor indicator */
+        .scan-ready-dot{width:6px;height:6px;border-radius:50%;background:#3366CC;animation:blink 1.5s ease-in-out infinite}
+        @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
         @media(max-width:380px){.stat-num{font-size:1rem!important}}
     </style>
@@ -114,7 +108,7 @@
 
 <main class="max-w-lg mx-auto px-4 pt-4 pb-20">
 
-    <!-- Header ringkas -->
+    <!-- Header -->
     <header class="text-center mb-4">
         <div class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-brand-500 text-white mb-2 shadow-md shadow-brand-500/20">
             <i class="fas fa-landmark text-base"></i>
@@ -123,7 +117,7 @@
         <p class="text-brand-500 font-semibold text-sm">MUSDA 8 LDII</p>
     </header>
 
-    <!-- Statistik compact -->
+    <!-- Statistik -->
     <div class="grid grid-cols-4 gap-2 mb-2.5">
         <div class="bg-white rounded-xl p-2 text-center border border-slate-100 shadow-sm">
             <div id="stat-total" class="stat-num text-lg font-bold text-brand-500">-</div>
@@ -143,30 +137,30 @@
         </div>
     </div>
 
-    <!-- Progress bar -->
     <div class="w-full h-1.5 bg-slate-100 rounded-full mb-4 overflow-hidden">
         <div id="progress-bar" class="h-full bg-gradient-to-r from-brand-500 to-ok-500 rounded-full transition-all duration-700" style="width:0%"></div>
     </div>
 
-    <!-- ===== KOLOM SCAN BARCODE UTAMA ===== -->
+    <!-- ===== KOLOM SCAN BARCODE ===== -->
     <section id="section-scan" class="mb-4">
-        <!-- Input scan barcode — FOKUS UTAMA -->
         <div class="scan-field bg-white border-2 border-brand-200 rounded-2xl p-1 shadow-lg shadow-brand-500/8" id="scan-field-wrap">
             <div class="flex items-center gap-2 px-3">
                 <div class="w-9 h-9 rounded-xl bg-brand-500 flex items-center justify-center shrink-0">
                     <i class="fas fa-barcode text-white text-sm"></i>
                 </div>
                 <input type="text" id="scan-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                       placeholder="Scan barcode di sini..."
+                       placeholder="Scan / ketik ID di sini..."
                        class="flex-1 py-3 text-base font-semibold text-slate-800 placeholder-slate-400 bg-transparent border-none focus:ring-0 focus:outline-none"
-                       onkeydown="handleScanKey(event)">
-                <div id="scan-status" class="shrink-0 w-8 h-8 flex items-center justify-center">
-                    <i class="fas fa-circle text-brand-200 text-xs"></i>
+                       onkeydown="handleScanKey(event)"
+                       oninput="handleScanInput()">
+                <div id="scan-status" class="shrink-0 flex items-center gap-1.5">
+                    <span class="text-[10px] text-slate-400 hidden" id="scan-mode-label">AUTO</span>
+                    <div class="scan-ready-dot" id="scan-ready-dot"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Toggle: Auto Check-in / Konfirmasi Dulu -->
+        <!-- Toggle & Kamera -->
         <div class="flex items-center justify-between mt-2.5 mb-3 px-1">
             <div class="flex items-center gap-2">
                 <div id="toggle-auto" class="toggle-track on" onclick="toggleAutoCheckin()">
@@ -179,13 +173,13 @@
             </button>
         </div>
 
-        <!-- Panel hasil scan -->
+        <!-- Panel hasil -->
         <div id="result-panel" class="result-panel">
             <div id="result-content"></div>
         </div>
     </section>
 
-    <!-- ===== CAMERA SCANNER (Hidden default) ===== -->
+    <!-- ===== CAMERA SCANNER ===== -->
     <section id="section-camera" class="mb-4 hidden">
         <div class="scanner-wrap border border-slate-200">
             <div class="vf-corner vf-tl"></div>
@@ -200,7 +194,7 @@
         </button>
     </section>
 
-    <!-- ===== TAB: Pencarian Manual ===== -->
+    <!-- ===== TAB ===== -->
     <section class="mb-4">
         <div class="flex bg-white rounded-xl p-0.5 mb-3 border border-slate-100 shadow-sm">
             <button onclick="switchTab('log')" id="tab-log" class="tab-btn active flex-1 py-2 rounded-lg text-xs flex items-center justify-center gap-1">
@@ -211,7 +205,6 @@
             </button>
         </div>
 
-        <!-- Riwayat Kehadiran -->
         <div id="panel-log">
             <div id="recent-log" class="space-y-1.5"></div>
             <div id="log-empty" class="text-center py-6 text-slate-400 text-sm">
@@ -220,7 +213,6 @@
             </div>
         </div>
 
-        <!-- Pencarian Manual -->
         <div id="panel-search" class="hidden">
             <div class="relative mb-2.5">
                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
@@ -235,41 +227,35 @@
 
 </main>
 
-<!-- ===== MODAL KONFIRMASI (hanya jika auto-checkin OFF) ===== -->
+<!-- Modal -->
 <div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="hideModal()"></div>
     <div class="relative bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl" style="animation:mIn .28s ease">
         <button onclick="hideModal()" class="absolute top-3 right-3 text-slate-400 hover:text-slate-700 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100">
             <i class="fas fa-times text-sm"></i>
         </button>
-
         <div id="modal-info" class="text-center mb-4">
             <div id="modal-avatar" class="w-16 h-16 rounded-full mx-auto mb-2 flex items-center justify-center text-xl font-bold text-white bg-brand-500 overflow-hidden border-2 border-brand-200"></div>
             <div id="modal-id-badge" class="inline-flex items-center gap-1 bg-brand-50 text-brand-600 text-xs font-bold px-3 py-1 rounded-full mb-1.5 id-chip">
-                <i class="fas fa-id-badge text-[10px]"></i>
-                <span id="modal-id-text"></span>
+                <i class="fas fa-id-badge text-[10px]"></i><span id="modal-id-text"></span>
             </div>
             <h3 id="modal-nama" class="font-display text-lg font-bold text-slate-900"></h3>
             <p id="modal-jabatan" class="text-brand-500 text-sm"></p>
         </div>
-
         <div class="bg-slate-50 rounded-xl p-3 space-y-1.5 text-sm mb-4">
             <div class="flex justify-between"><span class="text-slate-400">No HP</span><span id="modal-hp" class="text-slate-700 font-medium"></span></div>
             <div class="flex justify-between"><span class="text-slate-400">Wilayah</span><span id="modal-wilayah" class="text-slate-700 font-medium"></span></div>
             <div class="flex justify-between"><span class="text-slate-400">Jenis Kelamin</span><span id="modal-jk" class="text-slate-700 font-medium"></span></div>
         </div>
-
         <button id="modal-btn" onclick="confirmHadir()" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-xl text-sm transition-all active:scale-[.97] flex items-center justify-center gap-2 shadow-md shadow-brand-500/15">
             <i class="fas fa-user-check"></i> Tandai Hadir
         </button>
     </div>
 </div>
 
-<style>
-@keyframes mIn{from{opacity:0;transform:scale(.94) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
-</style>
+<style>@keyframes mIn{from{opacity:0;transform:scale(.94) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}</style>
 
-<!-- ===== TOAST ===== -->
+<!-- Toast -->
 <div id="toast-box" class="fixed top-3 left-3 right-3 z-[60] flex flex-col items-center gap-2 pointer-events-none"></div>
 
 
@@ -292,6 +278,10 @@ let processing = false;
 let selectedPerson = null;
 let searchTimer = null;
 
+// ★ Auto-detect timer untuk barcode scanner
+let autoDetectTimer = null;
+const AUTO_DETECT_DELAY = 500; // ms — scanner cepat, 500ms cukup
+
 // ===========================================
 // INIT
 // ===========================================
@@ -299,9 +289,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (API_URL === 'MASUKKAN_URL_WEB_APP_ANDA_DISINI') {
         document.querySelector('main').innerHTML = `
             <div class="text-center py-16">
-                <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-brand-50 text-brand-500 mb-4">
-                    <i class="fas fa-cog text-2xl"></i>
-                </div>
+                <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-brand-50 text-brand-500 mb-4"><i class="fas fa-cog text-2xl"></i></div>
                 <h2 class="font-display text-xl font-bold text-slate-900 mb-2">Konfigurasi Diperlukan</h2>
                 <p class="text-slate-500 text-sm max-w-xs mx-auto">Ganti <code class="bg-slate-100 px-1.5 py-0.5 rounded text-brand-500 text-xs">MASUKKAN_URL_WEB_APP_ANDA_DISINI</code> dengan URL Web App Anda.</p>
             </div>`;
@@ -309,7 +297,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     html5Qr = new Html5Qrcode('reader');
     loadData();
-    // Fokuskan input scan
     setTimeout(() => document.getElementById('scan-input').focus(), 500);
 });
 
@@ -324,8 +311,7 @@ async function loadData() {
         ]);
         allPeserta = pRes.data || [];
         const hData = hRes.data || [];
-        hadirMap = {};
-        hadirList = [];
+        hadirMap = {}; hadirList = [];
         hData.forEach(h => {
             const kid = String(h['ID']||'').trim();
             const khp = String(h['No HP']||'').trim();
@@ -334,81 +320,69 @@ async function loadData() {
             hadirList.push(h);
         });
         hadirList.sort((a,b) => new Date(b.Timestamp||0) - new Date(a.Timestamp||0));
-        updateStats();
-        renderLog();
-    } catch(e) {
-        console.error(e);
-        toast('Gagal memuat data','error');
-    }
-}
-
-async function refreshData() {
-    await loadData();
-    toast('Data diperbarui','success');
+        updateStats(); renderLog();
+    } catch(e) { console.error(e); toast('Gagal memuat data','error'); }
 }
 
 // ===========================================
-// HANDLER SCAN BARCODE — INTI UTAMA
+// ★ HANDLER SCAN — DUA MODE ENTER
 // ===========================================
+
+// MODE 1: Scanner mengirim Enter otomatis
 function handleScanKey(event) {
-    // Hanya proses saat tombol Enter (dari alat scan barcode)
     if (event.key !== 'Enter') return;
     event.preventDefault();
+    clearTimeout(autoDetectTimer); // batalkan auto-detect kalau Enter sudah ditekan
+    processScan();
+}
 
+// MODE 2: Auto-detect — scanner tidak kirim Enter, tapi berhenti ngetik 500ms
+function handleScanInput() {
+    clearTimeout(autoDetectTimer);
+    const val = document.getElementById('scan-input').value.trim();
+    if (!val) return;
+
+    // Set timer: jika 500ms tidak ada karakter baru → otomatis proses
+    autoDetectTimer = setTimeout(() => {
+        processScan();
+    }, AUTO_DETECT_DELAY);
+}
+
+// PROSES UTAMA
+function processScan() {
     const input = document.getElementById('scan-input');
     const code = input.value.trim();
-    if (!code) return;
+    if (!code || processing) return;
 
-    // Status: sedang memproses
     setScanStatus('processing');
-    const wrap = document.getElementById('scan-field-wrap');
-    wrap.classList.add('processing');
 
-    // Cari peserta
     const person = findPerson(code);
 
     if (!person) {
-        // Tidak ditemukan
         setScanStatus('error');
-        wrap.classList.remove('processing');
         showResultPanel('not_found', code);
         playSoundError();
         toast(`Peserta tidak ditemukan: "${code}"`, 'error');
-        // Bersihkan & fokus ulang
-        setTimeout(() => {
-            input.value = '';
-            input.focus();
-            setScanStatus('idle');
-        }, 1200);
+        setTimeout(() => { input.value = ''; input.focus(); setScanStatus('idle'); }, 1500);
         return;
     }
 
     const id = String(person['ID']||'').trim();
     const hp = String(person['No HP']||'').trim();
-    const alreadyHadir = hadirMap[id] !== undefined || hadirMap[hp] !== undefined;
+    const already = hadirMap[id] !== undefined || hadirMap[hp] !== undefined;
 
-    if (alreadyHadir) {
-        // Sudah hadir
+    if (already) {
         setScanStatus('warning');
-        wrap.classList.remove('processing');
         showResultPanel('already', person);
         playSoundWarn();
         toast(`${person['Nama']} sudah hadir sebelumnya`, 'warning');
-        setTimeout(() => {
-            input.value = '';
-            input.focus();
-            setScanStatus('idle');
-        }, 1500);
+        setTimeout(() => { input.value = ''; input.focus(); setScanStatus('idle'); }, 2000);
         return;
     }
 
-    // Ditemukan & belum hadir
     if (autoCheckin) {
-        // Auto check-in — langsung proses tanpa konfirmasi
         doCheckin(person);
     } else {
-        // Tampilkan modal konfirmasi dulu
-        wrap.classList.remove('processing');
         setScanStatus('idle');
         showModal(person);
         input.value = '';
@@ -421,7 +395,6 @@ function handleScanKey(event) {
 async function doCheckin(person) {
     if (processing) return;
     processing = true;
-
     const input = document.getElementById('scan-input');
     setScanStatus('processing');
 
@@ -445,23 +418,19 @@ async function doCheckin(person) {
             const id = String(person['ID']||'').trim();
             const hp = String(person['No HP']||'').trim();
             const ts = new Date().toLocaleString('id-ID',{timeZone:'Asia/Jakarta'});
-            const entry = { Timestamp:ts, ID:id, Nama:person['Nama']||'-', 'No HP':hp, 'Jabatan / Unsur':person['Jabatan / Unsur']||'-', Wilayah:person['Wilayah']||'-' };
-            if (id) hadirMap[id] = entry;
-            if (hp) hadirMap[hp] = entry;
+            const entry = {Timestamp:ts,ID:id,Nama:person['Nama']||'-','No HP':hp,'Jabatan / Unsur':person['Jabatan / Unsur']||'-',Wilayah:person['Wilayah']||'-'};
+            if(id) hadirMap[id]=entry;
+            if(hp) hadirMap[hp]=entry;
             hadirList.unshift(entry);
 
             setScanStatus('success');
             showResultPanel('success', person);
             playSoundOK();
             toast(`${person['Nama']} berhasil dicatat hadir!`, 'success');
+            updateStats(); renderLog();
 
-            updateStats();
-            renderLog();
-
-            // Bersihkan setelah 2 detik, siap scan lagi
             setTimeout(() => {
-                input.value = '';
-                input.focus();
+                input.value = ''; input.focus();
                 setScanStatus('idle');
                 hideResultPanel();
             }, 2000);
@@ -469,12 +438,8 @@ async function doCheckin(person) {
             setScanStatus('error');
             showResultPanel('error', person, r.message);
             playSoundError();
-            toast(r.message || 'Gagal mencatat kehadiran', 'error');
-            setTimeout(() => {
-                input.value = '';
-                input.focus();
-                setScanStatus('idle');
-            }, 1500);
+            toast(r.message||'Gagal', 'error');
+            setTimeout(() => { input.value=''; input.focus(); setScanStatus('idle'); }, 1500);
         }
     } catch(e) {
         console.error(e);
@@ -482,11 +447,7 @@ async function doCheckin(person) {
         showResultPanel('error', person, 'Gagal terhubung ke server');
         playSoundError();
         toast('Gagal terhubung ke server', 'error');
-        setTimeout(() => {
-            input.value = '';
-            input.focus();
-            setScanStatus('idle');
-        }, 1500);
+        setTimeout(() => { input.value=''; input.focus(); setScanStatus('idle'); }, 1500);
     }
     processing = false;
 }
@@ -497,26 +458,37 @@ async function doCheckin(person) {
 function setScanStatus(status) {
     const el = document.getElementById('scan-status');
     const wrap = document.getElementById('scan-field-wrap');
-    wrap.classList.remove('processing');
+    const dot = document.getElementById('scan-ready-dot');
+    const label = document.getElementById('scan-mode-label');
 
-    const icons = {
-        idle:       '<i class="fas fa-circle text-slate-300 text-xs"></i>',
-        processing: '<i class="fas fa-spinner fa-spin text-warn-500 text-sm"></i>',
-        success:    '<i class="fas fa-check-circle text-ok-500 text-lg"></i>',
-        warning:    '<i class="fas fa-exclamation-triangle text-warn-500 text-lg"></i>',
-        error:      '<i class="fas fa-times-circle text-err-500 text-lg"></i>'
+    // Reset classes
+    wrap.className = 'scan-field bg-white border-2 rounded-2xl p-1 shadow-lg shadow-brand-500/8';
+
+    const config = {
+        idle:       { border:'border-brand-200', html:'', dotShow:true,  labelShow:false },
+        processing: { border:'border-warn-400',  html:'<i class="fas fa-spinner fa-spin text-warn-500 text-sm"></i>', dotShow:false, labelShow:true, extra:'s-processing' },
+        success:    { border:'border-ok-500',    html:'<i class="fas fa-check-circle text-ok-500 text-lg"></i>', dotShow:false, labelShow:false, extra:'s-success' },
+        warning:    { border:'border-warn-400',  html:'<i class="fas fa-exclamation-triangle text-warn-500 text-lg"></i>', dotShow:false, labelShow:false, extra:'s-warning' },
+        error:      { border:'border-err-500',   html:'<i class="fas fa-times-circle text-err-500 text-lg"></i>', dotShow:false, labelShow:false, extra:'s-error' },
     };
-    const borders = {
-        idle:       'border-brand-200',
-        processing: 'border-warn-400',
-        success:    'border-ok-500',
-        warning:    'border-warn-400',
-        error:      'border-err-400'
-    };
-    el.innerHTML = icons[status] || icons.idle;
-    wrap.className = wrap.className.replace(/border-\S+/g, '');
-    wrap.classList.add('scan-field', 'bg-white', 'border-2', 'rounded-2xl', 'p-1', 'shadow-lg', borders[status]||'border-brand-200');
-    if (status === 'processing') wrap.classList.add('processing');
+
+    const c = config[status] || config.idle;
+    wrap.classList.add(c.border);
+    if (c.extra) wrap.classList.add(c.extra);
+    if (status === 'processing') {
+        el.innerHTML = c.html;
+    } else if (status === 'idle') {
+        el.innerHTML = '';
+    } else {
+        el.innerHTML = c.html;
+    }
+
+    // Dot visibility
+    if (dot) dot.style.display = c.dotShow ? '' : 'none';
+    if (label) {
+        label.style.display = c.labelShow ? '' : 'none';
+        if (c.labelShow) label.textContent = autoCheckin ? 'AUTO' : 'KONFIRMASI';
+    }
 }
 
 // ===========================================
@@ -545,7 +517,7 @@ function showResultPanel(type, data, errMsg) {
                         <span class="badge-pulse text-[9px] bg-ok-50 text-ok-600 px-1.5 py-0.5 rounded-full font-medium"><i class="fas fa-check mr-0.5"></i>Sudah</span>
                     </div>
                     <div class="text-xs text-amber-600">${esc(p['Jabatan / Unsur']||'-')}</div>
-                    ${p['ID'] ? `<span class="id-chip text-[9px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 mt-0.5 inline-block">${esc(p['ID'])}</span>` : ''}
+                    ${p['ID']?`<span class="id-chip text-[9px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 mt-0.5 inline-block">${esc(p['ID'])}</span>`:''}
                 </div>
             </div>
         </div>`;
@@ -554,21 +526,16 @@ function showResultPanel(type, data, errMsg) {
         content.innerHTML = `
         <div class="bg-ok-50 border border-emerald-200 rounded-xl p-4 flash-ok">
             <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-full bg-ok-500 flex items-center justify-center text-white shrink-0">
-                    <i class="fas fa-check text-lg"></i>
-                </div>
+                <div class="w-11 h-11 rounded-full bg-ok-500 flex items-center justify-center text-white shrink-0"><i class="fas fa-check text-lg"></i></div>
                 <div class="flex-1 min-w-0">
                     <div class="font-bold text-emerald-800 text-sm truncate">${esc(p['Nama'])}</div>
                     <div class="text-xs text-emerald-600">${esc(p['Jabatan / Unsur']||'-')}</div>
-                    ${p['ID'] ? `<span class="id-chip text-[9px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 mt-0.5 inline-block">${esc(p['ID'])}</span>` : ''}
+                    ${p['ID']?`<span class="id-chip text-[9px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 mt-0.5 inline-block">${esc(p['ID'])}</span>`:''}
                 </div>
-                <div class="text-ok-500 text-xs font-medium shrink-0">
-                    <i class="fas fa-clock mr-0.5"></i>${new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}
-                </div>
+                <div class="text-ok-500 text-xs font-medium shrink-0"><i class="fas fa-clock mr-0.5"></i>${new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</div>
             </div>
         </div>`;
     } else if (type === 'error') {
-        const p = data;
         content.innerHTML = `
         <div class="bg-err-50 border border-red-200 rounded-xl p-4 text-center flash-err">
             <i class="fas fa-exclamation-circle text-err-500 text-xl mb-1"></i>
@@ -576,7 +543,6 @@ function showResultPanel(type, data, errMsg) {
             <div class="text-red-500 text-xs mt-0.5">${esc(errMsg||'Kesalahan server')}</div>
         </div>`;
     }
-
     panel.classList.add('show');
 }
 
@@ -589,10 +555,9 @@ function hideResultPanel() {
 // ===========================================
 function toggleAutoCheckin() {
     autoCheckin = !autoCheckin;
-    const track = document.getElementById('toggle-auto');
-    const label = document.getElementById('toggle-label');
-    track.classList.toggle('on', autoCheckin);
-    label.textContent = autoCheckin ? 'Auto Check-in' : 'Konfirmasi Dulu';
+    document.getElementById('toggle-auto').classList.toggle('on', autoCheckin);
+    document.getElementById('toggle-label').textContent = autoCheckin ? 'Auto Check-in' : 'Konfirmasi Dulu';
+    setScanStatus('idle');
 }
 
 // ===========================================
@@ -602,92 +567,72 @@ async function openCameraScanner() {
     if (cameraActive) return;
     try {
         document.getElementById('section-camera').classList.remove('hidden');
-        await html5Qr.start(
-            { facingMode: 'environment' },
-            { fps: 10, qrbox: { width: 220, height: 220 }, aspectRatio: 1.0 },
-            onCameraScan, () => {}
-        );
+        await html5Qr.start({facingMode:'environment'},{fps:10,qrbox:{width:220,height:220},aspectRatio:1.0},onCameraScan,()=>{});
         cameraActive = true;
     } catch(e) {
         console.error(e);
         document.getElementById('section-camera').classList.add('hidden');
-        toast('Kamera tidak tersedia', 'error');
+        toast('Kamera tidak tersedia','error');
     }
 }
-
 async function closeCameraScanner() {
-    if (!cameraActive) return;
-    try { await html5Qr.stop(); } catch(e) {}
+    if(!cameraActive) return;
+    try{await html5Qr.stop();}catch(e){}
     cameraActive = false;
     document.getElementById('section-camera').classList.add('hidden');
     document.getElementById('scan-input').focus();
 }
-
 function onCameraScan(txt) {
-    if (navigator.vibrate) navigator.vibrate(60);
+    if(navigator.vibrate) navigator.vibrate(60);
     closeCameraScanner();
-    // Isi input & trigger proses yang sama
     const input = document.getElementById('scan-input');
     input.value = txt.trim();
-    handleScanKey({ key: 'Enter', preventDefault: () => {} });
+    processScan();
 }
 
 // ===========================================
-// MODAL KONFIRMASI (saat auto OFF)
+// MODAL
 // ===========================================
 function showModal(person) {
     selectedPerson = person;
-    const id = String(person['ID']||'').trim();
-    const hp = String(person['No HP']||'').trim();
-    const nama = person['Nama']||'-';
-    const jabatan = person['Jabatan / Unsur']||'-';
-    const wil = person['Wilayah']||'-';
-    const jk = person['Jenis Kelamin']||'-';
-    const ini = initials(nama);
-    const foto = person['Link Foto'] ? driveImg(person['Link Foto']) : null;
+    const id=String(person['ID']||'').trim(), hp=String(person['No HP']||'').trim();
+    const nama=person['Nama']||'-', jabatan=person['Jabatan / Unsur']||'-';
+    const wil=person['Wilayah']||'-', jk=person['Jenis Kelamin']||'-';
+    const ini=initials(nama);
+    const foto=person['Link Foto']?driveImg(person['Link Foto']):null;
 
-    const av = document.getElementById('modal-avatar');
-    if (foto) {
-        av.innerHTML = `<img src="${foto}" class="w-full h-full object-cover" onerror="this.remove()">`;
-        av.className = 'w-16 h-16 rounded-full mx-auto mb-2 overflow-hidden border-2 border-brand-200 flex items-center justify-center text-xl font-bold text-white bg-brand-500';
+    const av=document.getElementById('modal-avatar');
+    if(foto){
+        av.innerHTML=`<img src="${foto}" class="w-full h-full object-cover" onerror="this.remove()">`;
+        av.className='w-16 h-16 rounded-full mx-auto mb-2 overflow-hidden border-2 border-brand-200 flex items-center justify-center text-xl font-bold text-white bg-brand-500';
     } else {
-        av.innerHTML = ini;
-        av.className = 'w-16 h-16 rounded-full mx-auto mb-2 flex items-center justify-center text-xl font-bold text-white bg-brand-500 border-2 border-brand-200';
+        av.innerHTML=ini;
+        av.className='w-16 h-16 rounded-full mx-auto mb-2 flex items-center justify-center text-xl font-bold text-white bg-brand-500 border-2 border-brand-200';
     }
-
-    const idBadge = document.getElementById('modal-id-badge');
-    if (id) { idBadge.classList.remove('hidden'); document.getElementById('modal-id-text').textContent = id; }
-    else { idBadge.classList.add('hidden'); }
-
-    document.getElementById('modal-nama').textContent = nama;
-    document.getElementById('modal-jabatan').textContent = jabatan;
-    document.getElementById('modal-hp').textContent = hp || '-';
-    document.getElementById('modal-wilayah').textContent = wil || '-';
-    document.getElementById('modal-jk').textContent = jk || '-';
-
-    const btn = document.getElementById('modal-btn');
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-user-check"></i> Tandai Hadir';
-
-    const modal = document.getElementById('modal');
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
+    const idBadge=document.getElementById('modal-id-badge');
+    if(id){idBadge.classList.remove('hidden');document.getElementById('modal-id-text').textContent=id;}
+    else{idBadge.classList.add('hidden');}
+    document.getElementById('modal-nama').textContent=nama;
+    document.getElementById('modal-jabatan').textContent=jabatan;
+    document.getElementById('modal-hp').textContent=hp||'-';
+    document.getElementById('modal-wilayah').textContent=wil||'-';
+    document.getElementById('modal-jk').textContent=jk||'-';
+    const btn=document.getElementById('modal-btn');
+    btn.disabled=false; btn.innerHTML='<i class="fas fa-user-check"></i> Tandai Hadir';
+    const modal=document.getElementById('modal');
+    modal.classList.remove('hidden'); modal.classList.add('flex');
 }
-
 function hideModal() {
-    const modal = document.getElementById('modal');
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-    selectedPerson = null;
-    document.getElementById('scan-input').value = '';
+    const modal=document.getElementById('modal');
+    modal.classList.add('hidden'); modal.classList.remove('flex');
+    selectedPerson=null;
+    document.getElementById('scan-input').value='';
     document.getElementById('scan-input').focus();
 }
-
 async function confirmHadir() {
-    if (!selectedPerson) return;
-    const btn = document.getElementById('modal-btn');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+    if(!selectedPerson) return;
+    const btn=document.getElementById('modal-btn');
+    btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Memproses...';
     await doCheckin(selectedPerson);
     hideModal();
 }
@@ -696,34 +641,19 @@ async function confirmHadir() {
 // PENCARIAN
 // ===========================================
 function findPerson(query) {
-    const q = query.trim();
-    const ql = q.toLowerCase();
-
-    // 1. Exact ID
-    let m = allPeserta.find(p => String(p['ID']||'').trim() === q);
-    if (m) return m;
-
-    // 2. Exact No HP
-    m = allPeserta.find(p => String(p['No HP']||'').trim() === q);
-    if (m) return m;
-
-    // 3. Exact _no
-    m = allPeserta.find(p => String(p._no||'') === q);
-    if (m) return m;
-
-    // 4. Partial
-    const fields = ['ID','Nama','No HP','Jabatan / Unsur','Wilayah','_no'];
-    const res = allPeserta.filter(p => fields.some(f => String(p[f]||'').toLowerCase().includes(ql)));
-    if (!res.length) return null;
-    if (res.length === 1) return res[0];
-    const starts = res.find(p => ['ID','Nama','No HP','Jabatan / Unsur'].some(f => String(p[f]||'').toLowerCase().startsWith(ql)));
-    return starts || res[0];
+    const q=query.trim(), ql=q.toLowerCase();
+    let m=allPeserta.find(p=>String(p['ID']||'').trim()===q); if(m) return m;
+    m=allPeserta.find(p=>String(p['No HP']||'').trim()===q); if(m) return m;
+    m=allPeserta.find(p=>String(p._no||'')===q); if(m) return m;
+    const fields=['ID','Nama','No HP','Jabatan / Unsur','Wilayah','_no'];
+    const res=allPeserta.filter(p=>fields.some(f=>String(p[f]||'').toLowerCase().includes(ql)));
+    if(!res.length) return null;
+    if(res.length===1) return res[0];
+    return res.find(p=>['ID','Nama','No HP','Jabatan / Unsur'].some(f=>String(p[f]||'').toLowerCase().startsWith(ql)))||res[0];
 }
-
 function isPersonHadir(p) {
-    const id = String(p['ID']||'').trim();
-    const hp = String(p['No HP']||'').trim();
-    return hadirMap[id] !== undefined || hadirMap[hp] !== undefined;
+    const id=String(p['ID']||'').trim(), hp=String(p['No HP']||'').trim();
+    return hadirMap[id]!==undefined||hadirMap[hp]!==undefined;
 }
 
 // ===========================================
@@ -731,65 +661,43 @@ function isPersonHadir(p) {
 // ===========================================
 function handleSearch(q) {
     clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => renderSearchResults(q.trim()), 160);
+    searchTimer=setTimeout(()=>renderSearchResults(q.trim()),160);
 }
-
 function renderSearchResults(q) {
-    const box = document.getElementById('search-results');
-    const cnt = document.getElementById('search-count');
-
-    if (!q) {
-        cnt.classList.add('hidden');
-        box.innerHTML = '';
-        return;
-    }
-
-    const ql = q.toLowerCase();
-    const fields = ['ID','Nama','No HP','Jabatan / Unsur','Wilayah','_no'];
-    const res = allPeserta.filter(p => fields.some(f => String(p[f]||'').toLowerCase().includes(ql)))
-        .sort((a,b) => {
-            const aH = isPersonHadir(a)?1:0, bH = isPersonHadir(b)?1:0;
-            if (aH!==bH) return aH-bH;
-            const aS = fields.some(f=>String(a[f]||'').toLowerCase().startsWith(ql))?0:1;
-            const bS = fields.some(f=>String(b[f]||'').toLowerCase().startsWith(ql))?0:1;
+    const box=document.getElementById('search-results'), cnt=document.getElementById('search-count');
+    if(!q){cnt.classList.add('hidden');box.innerHTML='';return;}
+    const ql=q.toLowerCase();
+    const fields=['ID','Nama','No HP','Jabatan / Unsur','Wilayah','_no'];
+    const res=allPeserta.filter(p=>fields.some(f=>String(p[f]||'').toLowerCase().includes(ql)))
+        .sort((a,b)=>{
+            const aH=isPersonHadir(a)?1:0,bH=isPersonHadir(b)?1:0;
+            if(aH!==bH) return aH-bH;
+            const aS=fields.some(f=>String(a[f]||'').toLowerCase().startsWith(ql))?0:1;
+            const bS=fields.some(f=>String(b[f]||'').toLowerCase().startsWith(ql))?0:1;
             return aS-bS;
         });
-
-    cnt.classList.remove('hidden');
-    cnt.textContent = res.length + ' hasil';
-
-    if (!res.length) {
-        box.innerHTML = `<div class="text-center py-6 text-slate-400 text-sm"><i class="fas fa-user-slash text-lg mb-1 block opacity-50"></i>Tidak ditemukan</div>`;
-        return;
-    }
-
-    box.innerHTML = res.slice(0,30).map(p => {
-        const id = String(p['ID']||'').trim();
-        const hp = String(p['No HP']||'').trim();
-        const hadir = isPersonHadir(p);
-        const nama = p['Nama']||'-';
-        const jab = p['Jabatan / Unsur']||'-';
-        const wil = p['Wilayah']||'-';
-        const ini = initials(nama);
-        const foto = p['Link Foto'] ? driveImg(p['Link Foto']) : null;
-
+    cnt.classList.remove('hidden'); cnt.textContent=res.length+' hasil';
+    if(!res.length){box.innerHTML=`<div class="text-center py-6 text-slate-400 text-sm"><i class="fas fa-user-slash text-lg mb-1 block opacity-50"></i>Tidak ditemukan</div>`;return;}
+    box.innerHTML=res.slice(0,30).map(p=>{
+        const id=String(p['ID']||'').trim(),hp=String(p['No HP']||'').trim(),hadir=isPersonHadir(p);
+        const nama=p['Nama']||'-',jab=p['Jabatan / Unsur']||'-',wil=p['Wilayah']||'-';
+        const ini=initials(nama),foto=p['Link Foto']?driveImg(p['Link Foto']):null;
         return `
         <div class="card px-3 py-2.5 cursor-pointer ${hadir?'border-l-[3px] border-l-ok-500':''}" onclick="onSearchPick('${esc(id)}','${esc(hp)}')">
             <div class="flex items-center gap-2.5">
                 <div class="shrink-0">
                     ${foto
-                        ? `<img src="${foto}" class="w-9 h-9 rounded-full object-cover border-2 ${hadir?'border-ok-500':'border-slate-200'}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="w-9 h-9 rounded-full ${hadir?'bg-ok-500':'bg-brand-500'} flex items-center justify-center text-white font-bold text-[10px]" style="display:none">${ini}</div>`
-                        : `<div class="w-9 h-9 rounded-full ${hadir?'bg-ok-500':'bg-brand-500'} flex items-center justify-center text-white font-bold text-[10px]">${ini}</div>`
-                    }
+                        ?`<img src="${foto}" class="w-9 h-9 rounded-full object-cover border-2 ${hadir?'border-ok-500':'border-slate-200'}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="w-9 h-9 rounded-full ${hadir?'bg-ok-500':'bg-brand-500'} flex items-center justify-center text-white font-bold text-[10px]" style="display:none">${ini}</div>`
+                        :`<div class="w-9 h-9 rounded-full ${hadir?'bg-ok-500':'bg-brand-500'} flex items-center justify-center text-white font-bold text-[10px]">${ini}</div>`}
                 </div>
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-1">
                         <span class="font-semibold text-slate-800 text-sm truncate">${hl(nama,q)}</span>
-                        ${hadir ? '<span class="badge-pulse text-[8px] bg-ok-50 text-ok-600 px-1 py-0.5 rounded-full font-medium"><i class="fas fa-check mr-0.5"></i>Hadir</span>' : ''}
+                        ${hadir?'<span class="badge-pulse text-[8px] bg-ok-50 text-ok-600 px-1 py-0.5 rounded-full font-medium"><i class="fas fa-check mr-0.5"></i>Hadir</span>':''}
                     </div>
                     <div class="text-xs text-slate-500 truncate">${hl(jab,q)}</div>
                     <div class="flex items-center gap-1 mt-0.5">
-                        ${id ? `<span class="id-chip text-[9px] px-1.5 py-0.5 rounded ${hadir?'bg-ok-50 text-ok-600':'bg-brand-50 text-brand-600'}">${hl(id,q)}</span>` : ''}
+                        ${id?`<span class="id-chip text-[9px] px-1.5 py-0.5 rounded ${hadir?'bg-ok-50 text-ok-600':'bg-brand-50 text-brand-600'}">${hl(id,q)}</span>`:''}
                         <span class="text-[10px] text-slate-400 truncate">${hl(wil,q)} &middot; ${hl(hp,q)}</span>
                     </div>
                 </div>
@@ -798,82 +706,56 @@ function renderSearchResults(q) {
         </div>`;
     }).join('');
 }
-
-function onSearchPick(pid, php) {
-    const p = allPeserta.find(x => String(x['ID']||'').trim() === pid || String(x['No HP']||'').trim() === php);
-    if (!p) return;
-    if (isPersonHadir(p)) {
-        toast(`${p['Nama']} sudah hadir`, 'warning');
-        return;
-    }
-    if (autoCheckin) {
-        doCheckin(p);
-    } else {
-        showModal(p);
-    }
+function onSearchPick(pid,php) {
+    const p=allPeserta.find(x=>String(x['ID']||'').trim()===pid||String(x['No HP']||'').trim()===php);
+    if(!p) return;
+    if(isPersonHadir(p)){toast(`${p['Nama']} sudah hadir`,'warning');return;}
+    if(autoCheckin){doCheckin(p);}else{showModal(p);}
 }
 
 // ===========================================
 // TAB
 // ===========================================
 function switchTab(tab) {
-    document.getElementById('tab-log').classList.toggle('active', tab==='log');
-    document.getElementById('tab-search').classList.toggle('active', tab==='search');
-    document.getElementById('tab-log').classList.toggle('text-slate-400', tab!=='log');
-    document.getElementById('tab-search').classList.toggle('text-slate-400', tab!=='search');
-    document.getElementById('panel-log').classList.toggle('hidden', tab!=='log');
-    document.getElementById('panel-search').classList.toggle('hidden', tab!=='search');
-
-    if (tab === 'search') {
-        document.getElementById('search-input').focus();
-    } else {
-        document.getElementById('scan-input').focus();
-    }
+    document.getElementById('tab-log').classList.toggle('active',tab==='log');
+    document.getElementById('tab-search').classList.toggle('active',tab==='search');
+    document.getElementById('tab-log').classList.toggle('text-slate-400',tab!=='log');
+    document.getElementById('tab-search').classList.toggle('text-slate-400',tab!=='search');
+    document.getElementById('panel-log').classList.toggle('hidden',tab!=='log');
+    document.getElementById('panel-search').classList.toggle('hidden',tab!=='search');
+    if(tab==='search'){document.getElementById('search-input').focus();}
+    else{document.getElementById('scan-input').focus();}
 }
 
 // ===========================================
 // STATISTIK
 // ===========================================
 function updateStats() {
-    const total = allPeserta.length;
-    const hadirSet = new Set();
-    allPeserta.forEach(p => { if (isPersonHadir(p)) hadirSet.add(String(p['ID']||p['No HP']||'').trim()); });
-    const hadir = hadirSet.size;
-    const belum = Math.max(0, total - hadir);
-    const pct = total > 0 ? Math.round((hadir/total)*100) : 0;
-    animN('stat-total', total);
-    animN('stat-hadir', hadir);
-    animN('stat-belum', belum);
-    document.getElementById('stat-persen').textContent = pct+'%';
-    document.getElementById('progress-bar').style.width = pct+'%';
+    const total=allPeserta.length;
+    const hadirSet=new Set();
+    allPeserta.forEach(p=>{if(isPersonHadir(p)) hadirSet.add(String(p['ID']||p['No HP']||'').trim());});
+    const hadir=hadirSet.size, belum=Math.max(0,total-hadir);
+    const pct=total>0?Math.round((hadir/total)*100):0;
+    animN('stat-total',total); animN('stat-hadir',hadir); animN('stat-belum',belum);
+    document.getElementById('stat-persen').textContent=pct+'%';
+    document.getElementById('progress-bar').style.width=pct+'%';
 }
-
-function animN(id, target) {
-    const el = document.getElementById(id);
-    const from = parseInt(el.textContent)||0;
-    if (from === target) { el.textContent = target; return; }
-    const dur = 350, st = performance.now();
-    (function step(now) {
-        const p = Math.min((now-st)/dur,1);
-        el.textContent = Math.round(from+(target-from)*(1-Math.pow(1-p,3)));
-        if(p<1) requestAnimationFrame(step);
-    })(st);
+function animN(id,target) {
+    const el=document.getElementById(id),from=parseInt(el.textContent)||0;
+    if(from===target){el.textContent=target;return;}
+    const dur=350,st=performance.now();
+    (function step(now){const p=Math.min((now-st)/dur,1);el.textContent=Math.round(from+(target-from)*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(step);})(st);
 }
 
 // ===========================================
 // RIWAYAT
 // ===========================================
 function renderLog() {
-    const box = document.getElementById('recent-log');
-    const empty = document.getElementById('log-empty');
-    if (!hadirList.length) { box.innerHTML = ''; empty.classList.remove('hidden'); return; }
+    const box=document.getElementById('recent-log'),empty=document.getElementById('log-empty');
+    if(!hadirList.length){box.innerHTML='';empty.classList.remove('hidden');return;}
     empty.classList.add('hidden');
-
-    box.innerHTML = hadirList.slice(0,20).map((h,i) => {
-        const nama = h['Nama']||'-';
-        const id = h['ID']||'';
-        const jabatan = h['Jabatan / Unsur']||'-';
-        const waktu = h.Timestamp||'-';
+    box.innerHTML=hadirList.slice(0,20).map((h,i)=>{
+        const nama=h['Nama']||'-',id=h['ID']||'',jabatan=h['Jabatan / Unsur']||'-',waktu=h.Timestamp||'-';
         return `
         <div class="log-in flex items-center gap-2 bg-white rounded-xl px-3 py-2 border border-slate-100 ${i===0?'ring-1 ring-ok-500/15':''}">
             <div class="w-7 h-7 rounded-full bg-ok-500 flex items-center justify-center text-[10px] font-bold text-white shrink-0">${initials(nama)}</div>
@@ -884,9 +766,7 @@ function renderLog() {
                 </div>
                 <div class="text-[11px] text-slate-400 truncate">${esc(jabatan)}</div>
             </div>
-            <div class="text-[10px] text-slate-400 shrink-0 text-right leading-snug">
-                <i class="fas fa-check-circle text-ok-500 mr-0.5"></i>${esc(waktu)}
-            </div>
+            <div class="text-[10px] text-slate-400 shrink-0 text-right leading-snug"><i class="fas fa-check-circle text-ok-500 mr-0.5"></i>${esc(waktu)}</div>
         </div>`;
     }).join('');
 }
@@ -894,103 +774,60 @@ function renderLog() {
 // ===========================================
 // TOAST
 // ===========================================
-function toast(msg, type='info') {
-    const box = document.getElementById('toast-box');
-    const c = {success:'bg-ok-50 border-ok-500 text-ok-600',error:'bg-err-50 border-err-500 text-red-600',warning:'bg-warn-50 border-warn-500 text-amber-700',info:'bg-brand-50 border-brand-500 text-brand-600'};
-    const ic = {success:'fa-check-circle',error:'fa-exclamation-circle',warning:'fa-exclamation-triangle',info:'fa-info-circle'};
-    const el = document.createElement('div');
-    el.className = `toast-in pointer-events-auto ${c[type]} border rounded-xl px-3.5 py-2.5 text-sm font-medium flex items-center gap-2 shadow-lg max-w-sm w-full`;
-    el.innerHTML = `<i class="fas ${ic[type]} shrink-0"></i><span>${esc(msg)}</span>`;
+function toast(msg,type='info') {
+    const box=document.getElementById('toast-box');
+    const c={success:'bg-ok-50 border-ok-500 text-ok-600',error:'bg-err-50 border-err-500 text-red-600',warning:'bg-warn-50 border-warn-500 text-amber-700',info:'bg-brand-50 border-brand-500 text-brand-600'};
+    const ic={success:'fa-check-circle',error:'fa-exclamation-circle',warning:'fa-exclamation-triangle',info:'fa-info-circle'};
+    const el=document.createElement('div');
+    el.className=`toast-in pointer-events-auto ${c[type]} border rounded-xl px-3.5 py-2.5 text-sm font-medium flex items-center gap-2 shadow-lg max-w-sm w-full`;
+    el.innerHTML=`<i class="fas ${ic[type]} shrink-0"></i><span>${esc(msg)}</span>`;
     box.appendChild(el);
-    setTimeout(() => { el.classList.replace('toast-in','toast-out'); setTimeout(()=>el.remove(),250); }, 3000);
+    setTimeout(()=>{el.classList.replace('toast-in','toast-out');setTimeout(()=>el.remove(),250);},3000);
 }
 
 // ===========================================
 // SUARA
 // ===========================================
 function playSoundOK() {
-    try {
-        const ctx = new (window.AudioContext||window.webkitAudioContext)();
-        const o = ctx.createOscillator(), g = ctx.createGain();
-        o.connect(g); g.connect(ctx.destination); o.type='sine';
-        o.frequency.setValueAtTime(880,ctx.currentTime);
-        o.frequency.setValueAtTime(1175,ctx.currentTime+0.1);
-        g.gain.setValueAtTime(0.18,ctx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.3);
-        o.start(ctx.currentTime); o.stop(ctx.currentTime+0.3);
-    } catch(e){}
+    try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.setValueAtTime(880,ctx.currentTime);o.frequency.setValueAtTime(1175,ctx.currentTime+.1);g.gain.setValueAtTime(.18,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.3);o.start(ctx.currentTime);o.stop(ctx.currentTime+.3);}catch(e){}
 }
-
 function playSoundError() {
-    try {
-        const ctx = new (window.AudioContext||window.webkitAudioContext)();
-        const o = ctx.createOscillator(), g = ctx.createGain();
-        o.connect(g); g.connect(ctx.destination); o.type='square';
-        o.frequency.setValueAtTime(300,ctx.currentTime);
-        o.frequency.setValueAtTime(200,ctx.currentTime+0.15);
-        g.gain.setValueAtTime(0.12,ctx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.3);
-        o.start(ctx.currentTime); o.stop(ctx.currentTime+0.3);
-    } catch(e){}
+    try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='square';o.frequency.setValueAtTime(300,ctx.currentTime);o.frequency.setValueAtTime(200,ctx.currentTime+.15);g.gain.setValueAtTime(.12,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.3);o.start(ctx.currentTime);o.stop(ctx.currentTime+.3);}catch(e){}
 }
-
 function playSoundWarn() {
-    try {
-        const ctx = new (window.AudioContext||window.webkitAudioContext)();
-        const o = ctx.createOscillator(), g = ctx.createGain();
-        o.connect(g); g.connect(ctx.destination); o.type='triangle';
-        o.frequency.setValueAtTime(600,ctx.currentTime);
-        o.frequency.setValueAtTime(500,ctx.currentTime+0.1);
-        o.frequency.setValueAtTime(600,ctx.currentTime+0.2);
-        g.gain.setValueAtTime(0.15,ctx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.35);
-        o.start(ctx.currentTime); o.stop(ctx.currentTime+0.35);
-    } catch(e){}
+    try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='triangle';o.frequency.setValueAtTime(600,ctx.currentTime);o.frequency.setValueAtTime(500,ctx.currentTime+.1);o.frequency.setValueAtTime(600,ctx.currentTime+.2);g.gain.setValueAtTime(.15,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.35);o.start(ctx.currentTime);o.stop(ctx.currentTime+.35);}catch(e){}
 }
 
 // ===========================================
 // UTILITAS
 // ===========================================
 function driveImg(url) {
-    if (!url||url==='-'||url.startsWith('Gagal')) return null;
-    try {
-        let m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-        if(m) return 'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w200';
-        m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-        if(m) return 'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w200';
-        m = url.match(/open\?id=([a-zA-Z0-9_-]+)/);
-        if(m) return 'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w200';
-    } catch(e){}
+    if(!url||url==='-'||url.startsWith('Gagal')) return null;
+    try{let m=url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);if(m)return'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w200';m=url.match(/[?&]id=([a-zA-Z0-9_-]+)/);if(m)return'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w200';m=url.match(/open\?id=([a-zA-Z0-9_-]+)/);if(m)return'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w200';}catch(e){}
     return null;
 }
-
 function initials(name) {
     if(!name||name==='-') return '?';
     const p=name.trim().split(/\s+/);
     return p.length>=2?(p[0][0]+p[1][0]).toUpperCase():p[0].substring(0,2).toUpperCase();
 }
-
 function esc(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
-
 function hl(text,q) {
     if(!q) return esc(text);
     const e=esc(text);
-    try { return e.replace(new RegExp(`(${escRe(q)})`,'gi'),'<mark>$1</mark>'); } catch(er) { return e; }
+    try{return e.replace(new RegExp(`(${escRe(q)})`,'gi'),'<mark>$1</mark>');}catch(er){return e;}
 }
-
 function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
 
-// Fokus ulang scan input saat klik di mana saja
+// Auto-refocus scan input
 document.addEventListener('click', (e) => {
-    const scanInput = document.getElementById('scan-input');
-    if (!scanInput) return;
-    // Jangan re-focus jika sedang ketik di search input atau modal terbuka
-    const modal = document.getElementById('modal');
-    if (modal && !modal.classList.contains('hidden')) return;
-    if (e.target.id === 'search-input') return;
-    if (e.target.closest('#panel-search')) return;
-    if (e.target.closest('button') || e.target.closest('a')) return;
-    scanInput.focus();
+    const si=document.getElementById('scan-input');
+    if(!si) return;
+    const modal=document.getElementById('modal');
+    if(modal&&!modal.classList.contains('hidden')) return;
+    if(e.target.id==='search-input'||e.target.closest('#panel-search')) return;
+    if(e.target.closest('button')||e.target.closest('a')||e.target.closest('.toggle-track')) return;
+    si.focus();
 });
 </script>
 </body>
